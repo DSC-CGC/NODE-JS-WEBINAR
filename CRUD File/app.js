@@ -2,6 +2,11 @@ var express = require('express');
 var app = express();
 var fs = require('fs');
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true, parameterLimit: 1000000 }));
+app.use(bodyParser.json());
+
+
 app.get('/read', (req, res) => {
     fs.readFile('./user.json', 'utf8', (err, jsonString) => {
         if (err) {
@@ -45,6 +50,27 @@ app.post('/delete',(req,res)=>{
         fs.writeFile("./user.json", JSON.stringify(json), function(err) {
             if (err) throw err;
             res.send('The data was deleted from Users');
+        });
+    });
+})
+
+app.post('/update',(req,res)=>{
+    fs.readFile('./user.json', function(err, data) {
+        var json = JSON.parse(data);
+        console.log("Data before Updating");
+        console.log(json)
+        json.map((curr) => {
+        if(curr.name == req.body.name) {
+            curr.name=(req.body.name)
+            curr.email=(req.body.email)
+            curr.phone=(req.body.phone)
+            }
+        });
+        console.log("Data After Updating");
+        console.log(json)
+        fs.writeFile("./user.json", JSON.stringify(json), function(err) {
+            if (err) throw err;
+            res.send('The data was updated from Users');
         });
     });
 })
